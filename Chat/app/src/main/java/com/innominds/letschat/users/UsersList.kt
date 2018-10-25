@@ -20,9 +20,8 @@ class UsersList: AppCompatActivity() {
     private var listContentArr = ArrayList<User>()
 
 
-
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.users_list)
 
         val mLayoutManager = LinearLayoutManager(this)

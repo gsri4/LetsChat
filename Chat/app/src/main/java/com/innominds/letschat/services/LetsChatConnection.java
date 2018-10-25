@@ -142,19 +142,23 @@ public class LetsChatConnection implements ConnectionListener, RosterListener {
         Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
         Log.d("ROASTER ENTRIES LENGTH",entries.toString());
 
+        if(User.getAllUsers().isEmpty()) {
 
-        for (RosterEntry entry: entries) {
-            // Saving a roaster to User table
-            User userData = new User();
-            userData.user_JitId = entry.getJid().toString();
-            if(entry.getName() != null) {
-                userData.userName = entry.getName();
-            }else{
-                userData.userName = "Test User";
+            for (RosterEntry entry : entries) {
+                // Saving a roaster to User table
+                User userData = new User();
+                userData.user_JitId = entry.getJid().toString();
+                if (entry.getName() != null) {
+                    userData.userName = entry.getName();
+                } else {
+                    userData.userName = "Test User";
+                }
+                userData.userPresence = entry.canSeeHisPresence();
+                userData.save();
+
             }
-            userData.userPresence = entry.canSeeHisPresence();
-            userData.save();
-
+        }else{
+            //dont save users to database
         }
 
 

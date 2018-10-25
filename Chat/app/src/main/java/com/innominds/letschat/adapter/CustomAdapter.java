@@ -49,8 +49,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         holder.txt_UserName.setText(userData.getUserName());
         //User Jit_Id
         holder.txt_JitId.setText(userData.getUser_JitId());
-        //holder.time.setText(list_items.getTime());
-
         holder.bindContact(userData);
     }
 
@@ -88,7 +86,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
                     //Inside here we start the chat activity
                     Intent intent = new Intent(context
                             ,ChatActivity.class);
-                   // intent.putExtra("EXTRA_CONTACT_JID",mUser.user_JitId);
+                    intent.putExtra("EXTRA_CONTACT_JID",mUser.user_JitId);
                     context.startActivity(intent);
 
                 }
