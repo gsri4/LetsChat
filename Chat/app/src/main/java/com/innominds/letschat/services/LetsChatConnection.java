@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.innominds.letschat.helper.Constants;
+import com.innominds.letschat.models.MessageHistory;
 import com.innominds.letschat.models.User;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -35,6 +36,11 @@ import org.jxmpp.stringprep.XmppStringprepException;
 import java.io.IOException;
 import java.util.Collection;
 
+import static com.innominds.letschat.helper.Constants.HOST;
+import static com.innominds.letschat.helper.Constants.PORT;
+import static com.innominds.letschat.helper.Constants.RESOURCE;
+import static com.innominds.letschat.helper.Constants.TYPE_RECEIVE;
+
 
 public class LetsChatConnection implements ConnectionListener, RosterListener {
 
@@ -49,12 +55,12 @@ public class LetsChatConnection implements ConnectionListener, RosterListener {
 
     @Override
     public void entriesAdded(Collection<Jid> addresses) {
-        Log.d("Entries added",addresses.toString());
+        Log.d(TAG,"Entries added "+addresses.toString());
     }
 
     @Override
     public void entriesUpdated(Collection<Jid> addresses) {
-        Log.d("Entries updated",addresses.toString());
+        Log.d(TAG,"Entries updated "+addresses.toString());
     }
 
     @Override
@@ -64,7 +70,7 @@ public class LetsChatConnection implements ConnectionListener, RosterListener {
 
     @Override
     public void presenceChanged(Presence presence) {
-        Log.d("Presence changed",presence.getStatus());
+        Log.d(TAG,"Presence changed  "+presence.getStatus());
     }
 
 
@@ -106,10 +112,10 @@ public class LetsChatConnection implements ConnectionListener, RosterListener {
         Log.d(TAG, "Connecting to server " + mServiceName);
 
         XMPPTCPConnectionConfiguration conf = XMPPTCPConnectionConfiguration.builder()
-                .setXmppDomain("im.koderoot.net")
-                .setHost("im.koderoot.net")
-                .setPort(5222)
-                .setResource("Android")
+                .setXmppDomain(HOST)
+                .setHost(HOST)
+                .setPort(PORT)
+                .setResource(RESOURCE)
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.required)
                 .setUsernameAndPassword(mUsername, mPassword)
                 .setKeystoreType(null) //This line seems to get rid of the problem
@@ -140,7 +146,7 @@ public class LetsChatConnection implements ConnectionListener, RosterListener {
         theRoaster.addRosterListener(this);
         Collection<RosterEntry> entries = theRoaster.getEntries();
         Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
-        Log.d("ROASTER ENTRIES LENGTH",entries.toString());
+        Log.d(TAG,"ROASTER ENTRIES LENGTH "+entries.toString());
 
         if(User.getAllUsers().isEmpty()) {
 
@@ -194,6 +200,18 @@ public class LetsChatConnection implements ConnectionListener, RosterListener {
                 intent.putExtra(LetsChatConnectionService.BUNDLE_MESSAGE_BODY,message.getBody());
                 mApplicationContext.sendBroadcast(intent);
                 Log.d(TAG,"Received message from :"+contactJid+" broadcast sent.");
+
+                //saving received data to database for maintaining chat history
+                java.sql.Timestamp timestampRef = new java.sql.Timestamp(System.currentTimeMillis());
+                long timestamp = timestampRef.getTime();
+                //Creating and saving data to Message history table
+                MessageHistory messageHistory = new MessageHistory();
+                messageHistory.setMsgId(message.getBody());
+                messageHistory.setSenderJitId(contactJid);
+                messageHistory.setReceiverJitId(message.getTo().asBareJid().toString());
+                messageHistory.setDeliveryStatus(TYPE_RECEIVE);
+                messageHistory.setTimeStamp(timestamp);
+                messageHistory.save();
 
             }
         });

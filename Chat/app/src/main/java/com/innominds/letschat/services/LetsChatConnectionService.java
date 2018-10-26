@@ -16,14 +16,13 @@ import java.io.IOException;
 public class LetsChatConnectionService extends Service {
     private static final String TAG ="RoosterService";
 
-    public static final String UI_AUTHENTICATED = "uiauthenticated";
-    public static final String SEND_MESSAGE = "sendmessage";
+    public static final String UI_AUTHENTICATED = "com.blikoon.rooster.uiauthenticated";
+    public static final String SEND_MESSAGE = "com.blikoon.rooster.sendmessage";
     public static final String BUNDLE_MESSAGE_BODY = "b_body";
     public static final String BUNDLE_TO = "b_to";
 
-    public static final String NEW_MESSAGE = "newmessage";
+    public static final String NEW_MESSAGE = "com.blikoon.rooster.newmessage";
     public static final String BUNDLE_FROM_JID = "b_from";
-
     public static LetsChatConnection.ConnectionState sConnectionState;
     public static LetsChatConnection.LoggedInState sLoggedInState;
     private boolean mActive;//Stores whether or not the thread is active

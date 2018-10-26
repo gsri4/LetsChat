@@ -5,6 +5,10 @@ import com.reactiveandroid.Model;
 import com.reactiveandroid.annotation.Column;
 import com.reactiveandroid.annotation.PrimaryKey;
 import com.reactiveandroid.annotation.Table;
+import com.reactiveandroid.query.Select;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "MessageHistory", database = AppDatabase.class)
 public class MessageHistory extends Model {
@@ -79,4 +83,26 @@ public class MessageHistory extends Model {
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
+
+
+    /**
+     * Used to  get all messages list in {@link MessageHistory} table
+     * @return list of messages
+     */
+    public static ArrayList<MessageHistory> getAllMessageHistory(String senderjit_Id,String receiverJitId) {
+        //querying MessageHistory table
+        List<MessageHistory> messageHistoryList = Select.from(MessageHistory.class).
+                where("(receiverJitId = ? AND senderJitId = ?) OR (receiverJitId = ? AND senderJitId = ?)",
+                        receiverJitId, senderjit_Id,senderjit_Id,receiverJitId)
+                .orderBy("timeStamp")
+                .fetch();
+
+        //Converting list to array
+        ArrayList<MessageHistory> historyArrayList = new ArrayList<>();
+        historyArrayList.addAll(messageHistoryList);
+
+        return historyArrayList;
+    }
+
+
 }

@@ -26,7 +26,6 @@ android {
         maven {
             url "https://maven.google.com"
         }
-//        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
 
 }
@@ -53,20 +52,20 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    //chat
+    //chat UI
     implementation ('com.github.timigod:android-chat-ui:v0.1.4'){
         exclude group: 'com.android.support'
         exclude module: 'appcompat-v7'
         exclude module: 'support-v4'
     }
 
+    //Database
     implementation 'com.reactiveandroid:reactiveandroid:1.4.3'
 
+    //Smack libs
     implementation "org.igniterealtime.smack:smack-tcp:$smackVersion"
     implementation "org.igniterealtime.smack:smack-experimental:$smackVersion"
     implementation "org.igniterealtime.smack:smack-android:$smackVersion"
 
-    //data base
-    //implementation 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
 }
 

@@ -5,13 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.innominds.letschat.R;
+import com.innominds.letschat.helper.Constants;
+import com.innominds.letschat.models.MessageHistory;
 import com.innominds.letschat.services.LetsChatConnection;
 import com.innominds.letschat.services.LetsChatConnectionService;
+
+import java.util.ArrayList;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
@@ -23,7 +28,7 @@ public class ChatActivity extends AppCompatActivity {
     private String contactJid;
     private ChatView mChatView;
     private BroadcastReceiver mBroadcastReceiver;
-
+    private String senderJId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +46,18 @@ public class ChatActivity extends AppCompatActivity {
                     intent.putExtra(LetsChatConnectionService.BUNDLE_MESSAGE_BODY,
                             mChatView.getTypedMessage());
                     intent.putExtra(LetsChatConnectionService.BUNDLE_TO, contactJid);
-
                     sendBroadcast(intent);
+
+                    //storing message to database for mataining chat history
+                    //Creating and saving data to Message history table
+                    MessageHistory messageHistory = new MessageHistory();
+                    messageHistory.setMsgId(mChatView.getTypedMessage());
+                    messageHistory.setSenderJitId(senderJId);
+                    messageHistory.setReceiverJitId(contactJid);
+                    messageHistory.setDeliveryStatus(chatMessage.getType().name());
+                    messageHistory.setTimeStamp(chatMessage.getTimestamp());
+                    messageHistory.save();
+
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Client not connected to server ,Message not sent!",
@@ -60,6 +75,35 @@ public class ChatActivity extends AppCompatActivity {
         Intent intent = getIntent();
         contactJid = intent.getStringExtra("EXTRA_CONTACT_JID");
         setTitle(contactJid);
+
+         senderJId = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .getString(Constants.XMPP_JID,null);
+        checkandAddChatHistory(senderJId,contactJid);
+    }
+
+    /**
+     * Getting records from database and adding to list
+     * @param
+     */
+    private void checkandAddChatHistory(String senderJId,String receiverJid) {
+        ArrayList<MessageHistory> messageHistoriesList = MessageHistory.getAllMessageHistory(senderJId,receiverJid);
+        if(!messageHistoriesList.isEmpty()) {
+            ArrayList<ChatMessage> chatMessageArrayList = new ArrayList<>();
+            ChatMessage chatMessage = null;
+            for (MessageHistory messageHistory :
+                    messageHistoriesList) {
+                if(messageHistory.getDeliveryStatus().equalsIgnoreCase(Constants.TYPE_SENT)) {
+                     chatMessage = new ChatMessage(messageHistory.getMsgId(), messageHistory.getTimeStamp(), ChatMessage.Type.SENT);
+                }else{
+                     chatMessage = new ChatMessage(messageHistory.getMsgId(), messageHistory.getTimeStamp(), ChatMessage.Type.RECEIVED);
+
+                }
+                chatMessageArrayList.add(chatMessage);
+            }
+            mChatView.addMessages(chatMessageArrayList);
+        }else{
+            //do nothing
+        }
     }
 
     @Override
